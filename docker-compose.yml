@@ -8,37 +8,6 @@ services:
       - services
     volumes:
       - './app/config:/etc/nginx/conf.d'
-  grafana:
-    image: grafana/grafana-enterprise
-    restart: unless-stopped
-    ports:
-      - '3001:3000'
-    networks:
-      - monitoring
-    volumes:
-      - './grafana:/var/lib/grafana'
-  influxdb:
-    image: influxdb
-    restart: unless-stopped
-    ports:
-      - '8086:8086'
-    networks:
-      - monitoring
-    volumes:
-      - 'influxdb-volume:/var/lib/influxdb'
-  telegraf:
-    image: telegraf
-    restart: unless-stopped
-    env_file:
-      - './telegraf/.env'
-    networks:
-      - services
-      - monitoring
-    volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock:ro'
-      - './telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro'
-    depends_on:
-      - influxdb
   auth-service:
     build: ./auth-service
     networks:
@@ -64,8 +33,4 @@ services:
     volumes:
       - ./user-service:/src
 networks:
-  monitoring:
   services:
-volumes:
-  influxdb-volume:
-  grafana-volume:
