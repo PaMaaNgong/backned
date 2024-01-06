@@ -8,29 +8,11 @@ services:
       - services
     volumes:
       - './app/config:/etc/nginx/conf.d'
-  auth-service:
-    build: ./auth-service
+  service:
+    build: ./service
     networks:
       - services
     volumes:
-      - ./auth-service:/src
-  course-service:
-    build: ./course-service
-    networks:
-      - services
-    volumes:
-      - ./course-service:/src
-  review-service:
-    build: ./review-service
-    networks:
-      - services
-    volumes:
-      - ./review-service:/src
-  user-service:
-    build: ./user-service
-    networks:
-      - services
-    volumes:
-      - ./user-service:/src
+      - ./service:/src
 networks:
   services:
