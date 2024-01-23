@@ -82,19 +82,20 @@ func (d Day) IsValid() bool {
 type Grade string
 
 const (
-	A     Grade = "a"
-	BPlus       = "b+"
-	B           = "b"
-	CPlus       = "c+"
-	C           = "c"
-	DPlus       = "d+"
-	D           = "d"
-	F           = "f"
+	A     Grade = "A"
+	BPlus       = "B+"
+	B           = "B"
+	CPlus       = "C+"
+	C           = "C"
+	DPlus       = "D+"
+	D           = "D"
+	F           = "F"
+	W           = "W"
 	Blank       = "-"
 )
 
 func (g Grade) IsValid() bool {
-	return g == A || g == BPlus || g == B || g == CPlus || g == C || g == DPlus || g == D || g == F || g == Blank
+	return g == A || g == BPlus || g == B || g == CPlus || g == C || g == DPlus || g == D || g == F || g == W || g == Blank
 }
 
 type GradingMethod string
@@ -138,11 +139,17 @@ type CourseOverview struct {
 
 type CourseDetail struct {
 	CourseOverview
-	Description string     `json:"description"`
-	Lecturers   []string   `json:"lecturers"`
-	Location    string     `json:"location"`
-	Schedule    CourseTime `json:"schedule"`
-	Rooms       []string   `json:"rooms"`
+	Description string       `json:"description"`
+	Lecturers   []string     `json:"lecturers"`
+	Location    string       `json:"location"`
+	Schedule    CourseTime   `json:"schedule"`
+	Rooms       []string     `json:"rooms"`
+	Credit      CourseCredit `json:"credit"`
+}
+
+type CourseCredit struct {
+	Lecture int `json:"lecture"`
+	Lab     int `json:"lab"`
 }
 
 type ReviewOverview struct {

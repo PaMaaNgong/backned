@@ -70,6 +70,10 @@ func (s StubRepository) GetCourseDetail(courseId string) (CourseDetail, error) {
 			Days:        []Day{Tuesday, Friday},
 		},
 		Rooms: []string{"301", "302"},
+		Credit: CourseCredit{
+			Lecture: 3,
+			Lab:     1,
+		},
 	}, nil
 }
 func (s StubRepository) mapReviewsDetailToReviewsOverview() []ReviewOverview {
