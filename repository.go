@@ -10,137 +10,118 @@ type Repository interface {
 
 var courses = []CourseOverview{
 	{
-		ID:           "001101",
-		NameTH:       "ภาษาอังกฤษพื้นฐาน 1",
-		NameEN:       "Fundamental English 1",
-		Type:         "me",
-		TotalReviews: len(reviews["001101"]),
+		ID:     "001101",
+		NameTH: "ภาษาอังกฤษพื้นฐาน 1",
+		NameEN: "Fundamental English 1",
+		Type:   FreeElective,
 	},
 	{
-		ID:           "001102",
-		NameTH:       "ภาษาอังกฤษพื้นฐาน 2",
-		NameEN:       "Fundamental English 2",
-		Type:         "me",
-		TotalReviews: len(reviews["001102"]),
+		ID:     "001102",
+		NameTH: "ภาษาอังกฤษพื้นฐาน 2",
+		NameEN: "Fundamental English 2",
+		Type:   FreeElective,
 	},
 	{
-		ID:           "001201",
-		NameTH:       "การอ่านและการเขียนอย่างมีประสิทธิภาพ",
-		NameEN:       "Critical Reading and Effective Writing",
-		Type:         "me",
-		TotalReviews: len(reviews["001201"]),
+		ID:     "001201",
+		NameTH: "การอ่านและการเขียนอย่างมีประสิทธิภาพ",
+		NameEN: "Critical Reading and Effective Writing",
+		Type:   FreeElective,
 	},
 	{
-		ID:           "001225",
-		NameTH:       "ภาษาอังกฤษเพื่อวิทยาศาสตร์และเทคโนโลยี",
-		NameEN:       "English in Science and Technology Context",
-		Type:         "me",
-		TotalReviews: len(reviews["001225"]),
+		ID:     "001225",
+		NameTH: "ภาษาอังกฤษเพื่อวิทยาศาสตร์และเทคโนโลยี",
+		NameEN: "English in Science and Technology Context",
+		Type:   FreeElective,
 	},
 	{
-		ID:           "206161",
-		NameTH:       "คณิตศาสตร์เพื่อวิศวกรรม 1",
-		NameEN:       "Calculus for Engineering 1",
-		Type:         "me",
-		TotalReviews: len(reviews["206161"]),
+		ID:     "206161",
+		NameTH: "คณิตศาสตร์เพื่อวิศวกรรม 1",
+		NameEN: "Calculus for Engineering 1",
+		Type:   GeneralElective,
 	},
 	{
-		ID:           "206162",
-		NameTH:       "คณิตศาสตร์เพื่อวิศวกรรม 2",
-		NameEN:       "Calculus for Engineering 2",
-		Type:         "me",
-		TotalReviews: len(reviews["206162"]),
+		ID:     "206162",
+		NameTH: "คณิตศาสตร์เพื่อวิศวกรรม 2",
+		NameEN: "Calculus for Engineering 2",
+		Type:   GeneralElective,
 	},
 	{
-		ID:           "206261",
-		NameTH:       "คณิตศาสตร์เพื่อวิศวกรรม 3",
-		NameEN:       "Calculus for Engineering 3",
-		Type:         "me",
-		TotalReviews: len(reviews["206261"]),
+		ID:     "206261",
+		NameTH: "คณิตศาสตร์เพื่อวิศวกรรม 3",
+		NameEN: "Calculus for Engineering 3",
+		Type:   GeneralElective,
 	},
 	{
-		ID:           "207105",
-		NameTH:       "ฟิสิกส์เพื่อนักศึกษาวิศวกรรมและอุตสาหกรรมเกษตร 1",
-		NameEN:       "Physics for Engineering and Agro-Industry Students 1",
-		Type:         "me",
-		TotalReviews: len(reviews["207105"]),
+		ID:     "207105",
+		NameTH: "ฟิสิกส์เพื่อนักศึกษาวิศวกรรมและอุตสาหกรรมเกษตร 1",
+		NameEN: "Physics for Engineering and Agro-Industry Students 1",
+		Type:   GeneralElective,
 	},
 	{
-		ID:           "207115",
-		NameTH:       "การทดลองฟิสิกส์เพื่อนักศึกษาวิศวกรรมและอุตสาหกรรมเกษตร 1",
-		NameEN:       "Physics Laboratory for Engineering and Agro-Industry Students 1",
-		Type:         "me",
-		TotalReviews: len(reviews["207115"]),
+		ID:     "207115",
+		NameTH: "การทดลองฟิสิกส์เพื่อนักศึกษาวิศวกรรมและอุตสาหกรรมเกษตร 1",
+		NameEN: "Physics Laboratory for Engineering and Agro-Industry Students 1",
+		Type:   GeneralElective,
 	},
 	{
-		ID:           "261200",
-		NameTH:       "การเขียนโปรแกรมเชิงวัตถุ",
-		NameEN:       "Object-Oriented Programming",
-		Type:         "me",
-		TotalReviews: len(reviews["261200"]),
+		ID:     "261200",
+		NameTH: "การเขียนโปรแกรมเชิงวัตถุ",
+		NameEN: "Object-Oriented Programming",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261408",
-		NameTH:       "คอมพิวเตอร์ควอนตัม",
-		NameEN:       "Quantum Computing",
-		Type:         "me",
-		TotalReviews: len(reviews["261408"]),
+		ID:     "261408",
+		NameTH: "คอมพิวเตอร์ควอนตัม",
+		NameEN: "Quantum Computing",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261434",
-		NameTH:       "การออกแบบและการจัดการเครือข่าย",
-		NameEN:       "Network Design and Management",
-		Type:         "me",
-		TotalReviews: len(reviews["261434"]),
+		ID:     "261434",
+		NameTH: "การออกแบบและการจัดการเครือข่าย",
+		NameEN: "Network Design and Management",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261453",
-		NameTH:       "การประมวลผลภาพดิจิตอล",
-		NameEN:       "Digital Image Processing",
-		Type:         "me",
-		TotalReviews: len(reviews["261453"]),
+		ID:     "261453",
+		NameTH: "การประมวลผลภาพดิจิตอล",
+		NameEN: "Digital Image Processing",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261456",
-		NameTH:       "การประมวลผลด้วยเทคนิคทางปัญญาประดิษฐ์",
-		NameEN:       "Intro to Computational Intelligence",
-		Type:         "me",
-		TotalReviews: len(reviews["261456"]),
+		ID:     "261456",
+		NameTH: "การประมวลผลด้วยเทคนิคทางปัญญาประดิษฐ์",
+		NameEN: "Intro to Computational Intelligence",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261494-1",
-		NameTH:       "R Programming (selected topics in CPE)",
-		NameEN:       "R Programming (selected topics in CPE)",
-		Type:         "me",
-		TotalReviews: len(reviews["261494-1"]),
+		ID:     "261494-1",
+		NameTH: "R Programming (selected topics in CPE)",
+		NameEN: "R Programming (selected topics in CPE)",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261494-10",
-		NameTH:       "Blockchain Programming (selected topics in CPE)",
-		NameEN:       "Blockchain Programming (selected topics in CPE)",
-		Type:         "me",
-		TotalReviews: len(reviews["261494-10"]),
+		ID:     "261494-10",
+		NameTH: "Blockchain Programming (selected topics in CPE)",
+		NameEN: "Blockchain Programming (selected topics in CPE)",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261494-2",
-		NameTH:       "Adv Algorithms and Computation (selected topics in CPE)",
-		NameEN:       "Adv Algorithms and Computation (selected topics in CPE)",
-		Type:         "me",
-		TotalReviews: len(reviews["261494-2"]),
+		ID:     "261494-2",
+		NameTH: "Adv Algorithms and Computation (selected topics in CPE)",
+		NameEN: "Adv Algorithms and Computation (selected topics in CPE)",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261494-4",
-		NameTH:       "Up Skills Unlock Limits (selected topics in CPE)",
-		NameEN:       "Up Skills Unlock Limits (selected topics in CPE)",
-		Type:         "me",
-		TotalReviews: len(reviews["261494-4"]),
+		ID:     "261494-4",
+		NameTH: "Up Skills Unlock Limits (selected topics in CPE)",
+		NameEN: "Up Skills Unlock Limits (selected topics in CPE)",
+		Type:   MajorElective,
 	},
 	{
-		ID:           "261494-8",
-		NameTH:       "Startup Raid (selected topics in CPE)",
-		NameEN:       "Startup Raid (selected topics in CPE)",
-		Type:         "me",
-		TotalReviews: len(reviews["261494-8"]),
+		ID:     "261494-8",
+		NameTH: "Startup Raid (selected topics in CPE)",
+		NameEN: "Startup Raid (selected topics in CPE)",
+		Type:   MajorElective,
 	},
 }
 var reviews = make(map[string][]ReviewDetail)
@@ -171,7 +152,11 @@ func (s StubRepository) GetCourses(query string, limit int, offset int) ([]Cours
 	if query != "" {
 		return []CourseOverview{}, nil
 	}
-	return courses[offset : min(len(courses)-1, offset+limit)+1], nil
+	lastIndex := len(courses) - 1
+	for i, course := range courses {
+		courses[i].TotalReviews = len(reviews[course.ID])
+	}
+	return courses[min(offset, lastIndex):min(offset+limit, lastIndex)], nil
 }
 
 func (s StubRepository) GetCourseDetail(courseId string) (CourseDetail, error) {
@@ -179,7 +164,7 @@ func (s StubRepository) GetCourseDetail(courseId string) (CourseDetail, error) {
 		if course.ID == courseId {
 			return CourseDetail{
 				CourseOverview: course,
-				Description:    "เรียนเกี่ยวกับการเขียนโปรแกรมเชิงวัตถุ",
+				Description:    "เรียนเกี่ยวกับการเขียนโปรแกรมเชิงวัตถุทุกอัน",
 				Lecturers:      []string{"พี่ชิณสุดหล่อ"},
 				Location:       "อาคาร 3",
 				Schedule: CourseTime{
@@ -215,7 +200,9 @@ func (s StubRepository) GetReviewsOverview(courseId string, limit int, offset in
 	if offset >= len(reviews[courseId]) {
 		return []ReviewOverview{}, nil
 	}
-	return mapReviewDetailToReviewOverview(reviews[courseId])[offset : min(len(reviews[courseId])-1, offset+limit)+1], nil
+	review := reviews[courseId]
+	lastIndex := len(review) - 1
+	return mapReviewDetailToReviewOverview(review)[min(offset, lastIndex):min(offset+limit, lastIndex)], nil
 }
 
 func (s StubRepository) GetReviewsDetail(courseId string, limit int, offset int) ([]ReviewDetail, error) {
@@ -225,7 +212,8 @@ func (s StubRepository) GetReviewsDetail(courseId string, limit int, offset int)
 	if offset >= len(reviews[courseId]) {
 		return []ReviewDetail{}, nil
 	}
-	return reviews[courseId][offset : min(len(reviews[courseId])-1, offset+limit)+1], nil
+	lastIndex := len(reviews[courseId]) - 1
+	return reviews[courseId][min(offset, lastIndex):min(offset+limit, lastIndex)], nil
 }
 
 func (s StubRepository) CreateReview(courseId string, review ReviewDetail) error {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -70,7 +69,6 @@ func NewRouter(repo Repository) *gin.Engine {
 		var review ReviewDetail
 		err := c.BindJSON(&review)
 		if err != nil {
-			fmt.Println(err)
 			c.Status(http.StatusBadRequest)
 			return
 		}
