@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -9,12 +10,20 @@ import (
 	"strconv"
 )
 
+func newCors() gin.HandlerFunc {
+	config := cors.DefaultConfig()
+	config.AllowMethods = []string{"GET", "POST"}
+	config.AllowOriginFunc = func(origin string) bool { return true }
+	return cors.New(config)
+}
+
 func NewRouter(repo Repository) *gin.Engine {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		RegisterEnumValidator(v)
 	}
 
 	r := gin.Default()
+	r.Use(newCors())
 
 	r.GET("/v1/courses", func(c *gin.Context) {
 		query := c.Query("query")
