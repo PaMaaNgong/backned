@@ -152,7 +152,7 @@ func (s StubRepository) GetCourses(query string, limit int, offset int) ([]Cours
 	if query != "" {
 		return []CourseOverview{}, nil
 	}
-	lastIndex := len(courses) - 1
+	lastIndex := len(courses)
 	for i, course := range courses {
 		courses[i].TotalReviews = len(reviews[course.ID])
 	}
@@ -201,7 +201,7 @@ func (s StubRepository) GetReviewsOverview(courseId string, limit int, offset in
 		return []ReviewOverview{}, nil
 	}
 	review := reviews[courseId]
-	lastIndex := len(review) - 1
+	lastIndex := len(review)
 	return mapReviewDetailToReviewOverview(review)[min(offset, lastIndex):min(offset+limit, lastIndex)], nil
 }
 
@@ -212,7 +212,7 @@ func (s StubRepository) GetReviewsDetail(courseId string, limit int, offset int)
 	if offset >= len(reviews[courseId]) {
 		return []ReviewDetail{}, nil
 	}
-	lastIndex := len(reviews[courseId]) - 1
+	lastIndex := len(reviews[courseId])
 	return reviews[courseId][min(offset, lastIndex):min(offset+limit, lastIndex)], nil
 }
 
