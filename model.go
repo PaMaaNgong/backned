@@ -4,7 +4,6 @@ import (
 	"reflect"
 
 	"github.com/go-playground/validator/v10"
-	"gorm.io/gorm"
 )
 
 type Enum interface {
@@ -132,7 +131,6 @@ type CourseTime struct {
 }
 
 type CourseOverview struct {
-	gorm.Model
 	ID           string     `json:"id" gorm:"type:varchar(10);primaryKey"`
 	NameTH       string     `json:"name_th"`
 	NameEN       string     `json:"name_en"`
@@ -145,7 +143,7 @@ type CourseDetail struct {
 	Description string       `json:"description"`
 	Lecturers   []string     `json:"lecturers" gorm:"serializer:json"`
 	Location    string       `json:"location"`
-	Schedule    CourseTime   `json:"schedule" gorm:"serializer:json"`
+	Schedule    []CourseTime   `json:"schedule" gorm:"serializer:json"`
 	Rooms       []string     `json:"rooms" gorm:"serializer:json"`
 	Credit      CourseCredit `json:"credit" gorm:"serializer:json"`
 	Reviews []ReviewDetail `gorm:"foreignkey:CourseID"`
@@ -157,7 +155,6 @@ type CourseCredit struct {
 }
 
 type ReviewOverview struct {
-	gorm.Model
 	ID uint64 `json:"id" gorm:"primary_key"`
 	Rating int   `json:"rating" binding:"required"`
 	Grade  Grade `json:"grade" binding:"required,enum"`

@@ -47,15 +47,14 @@ func (s MySQLRepository) GetCourseDetail(courseId string) (CourseDetail, error) 
 }
 
 func (s MySQLRepository) GetReviewsOverview(courseId string, limit int, offset int) ([]ReviewOverview, error) {
-	// TODO: เดี๋ยวมา check วิชาที่ไม่มี
-	if s.CheckCourse(courseId){
+	if s.noCourse(courseId){
 		return []ReviewOverview{}, ErrCourseNotFound{}
 	}
 
 	reviewsDetail := make([]ReviewDetail,0);
 	s.db.Limit(limit).
 	Offset(offset).
-	Where("course_id <> ?", courseId).
+	Where("course_id = ?", courseId).
 	Find(&reviewsDetail);
 	reviewsOverview := make([]ReviewOverview,0);
 	for _, reviewDetail := range reviewsDetail {
@@ -65,8 +64,7 @@ func (s MySQLRepository) GetReviewsOverview(courseId string, limit int, offset i
 }
 
 func (s MySQLRepository) GetReviewsDetail(courseId string, limit int, offset int) ([]ReviewDetail, error) {
-	// TODO: เดี๋ยวมา check วิชาที่ไม่มี
-	if s.CheckCourse(courseId){
+	if s.noCourse(courseId){
 		return []ReviewDetail{}, ErrCourseNotFound{}
 	}
 
@@ -79,12 +77,24 @@ func (s MySQLRepository) GetReviewsDetail(courseId string, limit int, offset int
 }
 
 func (s MySQLRepository) CreateReview(courseId string, review ReviewDetail) error {
+	if s.noCourse(courseId){
+		return ErrCourseNotFound{}
+	}
 	review.CourseID = courseId;
 	result := s.db.Create(&review)
+	if result.Error == nil{
+		var course CourseDetail
+		s.db.First(&course)
+		s.db.Model(&CourseDetail{}).Where("id = ?",courseId).Update("total_reviews",course.TotalReviews+1)
+	}
 	return result.Error
 }
 
-func (s MySQLRepository) CheckCourse(courseId string) bool {
+func (s MySQLRepository) noCourse(courseId string) bool {
 	var course CourseDetail
 	return errors.Is(s.db.Where("id = ?" , courseId).First(&course).Error,gorm.ErrRecordNotFound)
+}
+
+func (s MySQLRepository) AddCourse (course CourseDetail){
+	s.db.Create(&course)
 }

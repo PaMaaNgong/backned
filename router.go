@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	"net/http"
-	"strconv"
 )
 
 func NewRouter(repo Repository) *gin.Engine {
@@ -39,6 +40,18 @@ func NewRouter(repo Repository) *gin.Engine {
 			return
 		}
 		c.JSON(http.StatusOK, course)
+	})
+
+	r.POST("/v1/course/:id", func(c *gin.Context){
+		id := c.Param("id")
+		var course CourseDetail
+		err := c.BindJSON(&course)
+		if err != nil{
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		course.ID = id
+		repo.AddCourse(course)
 	})
 
 	r.GET("/v1/course/:id/reviews", func(c *gin.Context) {
