@@ -22,7 +22,7 @@ func newCors() gin.HandlerFunc {
 }
 
 func main() {
-	s := NewMySQLRepository("db-mysql-sgp1-18121-do-user-15505600-0.c.db.ondigitalocean.com","kritanon","AVNS_JyoxklF56B55Q1Y1MjU","25060","course-review-development")
+	s := NewMySQLRepository("")
 	r := NewRouter(s)
 	r.Use(newCors())
 	_ = r.Run()

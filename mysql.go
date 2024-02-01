@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/driver/mysql"
@@ -39,7 +40,7 @@ func (s MySQLRepository) GetCourses(query string, limit int, offset int) ([]Cour
 func (s MySQLRepository) GetCourseDetail(courseId string) (CourseDetail, error) {
 	var courseDetail CourseDetail;
 	result := s.db.Where("id = ?",courseId ).Find(&courseDetail)
-	if result.Error == gorm.ErrRecordNotFound {
+	if result.RowsAffected == 0 {
 		return CourseDetail{}, ErrCourseNotFound{}
 	}
 	return courseDetail,nil
@@ -47,6 +48,10 @@ func (s MySQLRepository) GetCourseDetail(courseId string) (CourseDetail, error) 
 
 func (s MySQLRepository) GetReviewsOverview(courseId string, limit int, offset int) ([]ReviewOverview, error) {
 	// TODO: เดี๋ยวมา check วิชาที่ไม่มี
+	if s.CheckCourse(courseId){
+		return []ReviewOverview{}, ErrCourseNotFound{}
+	}
+
 	reviewsDetail := make([]ReviewDetail,0);
 	s.db.Limit(limit).
 	Offset(offset).
@@ -61,6 +66,10 @@ func (s MySQLRepository) GetReviewsOverview(courseId string, limit int, offset i
 
 func (s MySQLRepository) GetReviewsDetail(courseId string, limit int, offset int) ([]ReviewDetail, error) {
 	// TODO: เดี๋ยวมา check วิชาที่ไม่มี
+	if s.CheckCourse(courseId){
+		return []ReviewDetail{}, ErrCourseNotFound{}
+	}
+
 	reviewsDetail := make([]ReviewDetail,0);
 	result := s.db.Limit(limit).Offset(offset).Where("course_id = ?",courseId ).Find(&reviewsDetail)
 	if result.Error == gorm.ErrRecordNotFound {
@@ -73,4 +82,9 @@ func (s MySQLRepository) CreateReview(courseId string, review ReviewDetail) erro
 	review.CourseID = courseId;
 	result := s.db.Create(&review)
 	return result.Error
+}
+
+func (s MySQLRepository) CheckCourse(courseId string) bool {
+	var course CourseDetail
+	return errors.Is(s.db.Where("id = ?" , courseId).First(&course).Error,gorm.ErrRecordNotFound)
 }
