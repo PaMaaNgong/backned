@@ -59,11 +59,11 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, grades)
 	})
 
-	r.POST("/v1/course/:id", func(c *gin.Context){
+	r.POST("/v1/course/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		var course CourseDetail
 		err := c.BindJSON(&course)
-		if err != nil{
+		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return
 		}

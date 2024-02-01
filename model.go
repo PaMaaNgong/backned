@@ -140,13 +140,13 @@ type CourseOverview struct {
 
 type CourseDetail struct {
 	CourseOverview
-	Description string       `json:"description"`
-	Lecturers   []string     `json:"lecturers" gorm:"serializer:json"`
-	Location    string       `json:"location"`
+	Description string         `json:"description"`
+	Lecturers   []string       `json:"lecturers" gorm:"serializer:json"`
+	Location    string         `json:"location"`
 	Schedule    []CourseTime   `json:"schedule" gorm:"serializer:json"`
-	Rooms       []string     `json:"rooms" gorm:"serializer:json"`
-	Credit      CourseCredit `json:"credit" gorm:"serializer:json"`
-	Reviews []ReviewDetail `gorm:"foreignkey:CourseID"`
+	Rooms       []string       `json:"rooms" gorm:"serializer:json"`
+	Credit      CourseCredit   `json:"credit" gorm:"serializer:json"`
+	Reviews     []ReviewDetail `gorm:"foreignkey:CourseID"`
 }
 
 type CourseCredit struct {
@@ -155,9 +155,9 @@ type CourseCredit struct {
 }
 
 type ReviewOverview struct {
-	ID uint64 `json:"id" gorm:"primary_key"`
-	Rating int   `json:"rating" binding:"required"`
-	Grade  Grade `json:"grade" binding:"required,enum"`
+	ID     uint64 `json:"id" gorm:"primary_key"`
+	Rating int    `json:"rating" binding:"required"`
+	Grade  Grade  `json:"grade" binding:"required,enum"`
 }
 
 type ReviewDetail struct {
@@ -169,5 +169,5 @@ type ReviewDetail struct {
 	GradingMethod        []GradingMethod `json:"grading_method" binding:"required,enum_slice" gorm:"serializer:json"`
 	Semester             Semester        `json:"semester" binding:"required,enum"`
 	Year                 int             `json:"year" binding:"required"`
-	CourseID string
+	CourseID             string
 }
