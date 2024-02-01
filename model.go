@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/go-playground/validator/v10"
 	"reflect"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Enum interface {
@@ -126,11 +127,11 @@ type CourseTime struct {
 	StartMinute int   `json:"start_minute"`
 	EndHour     int   `json:"end_hour"`
 	EndMinute   int   `json:"end_minute"`
-	Days        []Day `json:"days"`
+	Days        []Day `json:"days" gorm:"serializer:json"`
 }
 
 type CourseOverview struct {
-	ID           string     `json:"id"`
+	ID           string     `json:"id" gorm:"type:varchar(10);primaryKey"`
 	NameTH       string     `json:"name_th"`
 	NameEN       string     `json:"name_en"`
 	Type         CourseType `json:"type"`
@@ -140,11 +141,12 @@ type CourseOverview struct {
 type CourseDetail struct {
 	CourseOverview
 	Description string       `json:"description"`
-	Lecturers   []string     `json:"lecturers"`
+	Lecturers   []string     `json:"lecturers" gorm:"serializer:json"`
 	Location    string       `json:"location"`
-	Schedule    CourseTime   `json:"schedule"`
-	Rooms       []string     `json:"rooms"`
-	Credit      CourseCredit `json:"credit"`
+	Schedule    []CourseTime   `json:"schedule" gorm:"serializer:json"`
+	Rooms       []string     `json:"rooms" gorm:"serializer:json"`
+	Credit      CourseCredit `json:"credit" gorm:"serializer:json"`
+	Reviews []ReviewDetail `gorm:"foreignkey:CourseID"`
 }
 
 type CourseCredit struct {
@@ -153,6 +155,7 @@ type CourseCredit struct {
 }
 
 type ReviewOverview struct {
+	ID uint64 `json:"id" gorm:"primary_key"`
 	Rating int   `json:"rating" binding:"required"`
 	Grade  Grade `json:"grade" binding:"required,enum"`
 }
@@ -163,7 +166,8 @@ type ReviewDetail struct {
 	ClassroomEnvironment string          `json:"classroom_environment" binding:"required"`
 	ExaminationFormat    string          `json:"examination_format" binding:"required"`
 	ExerciseFormat       string          `json:"exercise_format" binding:"required"`
-	GradingMethod        []GradingMethod `json:"grading_method" binding:"required,enum_slice"`
+	GradingMethod        []GradingMethod `json:"grading_method" binding:"required,enum_slice" gorm:"serializer:json"`
 	Semester             Semester        `json:"semester" binding:"required,enum"`
 	Year                 int             `json:"year" binding:"required"`
+	CourseID string
 }

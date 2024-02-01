@@ -59,6 +59,18 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, grades)
 	})
 
+	r.POST("/v1/course/:id", func(c *gin.Context){
+		id := c.Param("id")
+		var course CourseDetail
+		err := c.BindJSON(&course)
+		if err != nil{
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		course.ID = id
+		repo.AddCourse(course)
+	})
+
 	r.GET("/v1/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
 		limit, offset, err := getLimitAndOffset(c, 10, 0)
