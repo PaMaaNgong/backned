@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -72,9 +71,9 @@ func NewRouter(repo Repository) *gin.Engine {
 	r.POST("/v1/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
 		var review ReviewDetail
+		
 		err := c.BindJSON(&review)
 		if err != nil {
-			fmt.Println(err)
 			c.Status(http.StatusBadRequest)
 			return
 		}

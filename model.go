@@ -1,10 +1,23 @@
 package main
 
 import (
+	"encoding/json"
 	"reflect"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
+
+type Trim string
+
+func (t *Trim) UnmarshalJSON(data []byte) error {
+    var s string
+    if err := json.Unmarshal(data, &s); err != nil {
+        return err
+    }
+    *t = Trim(strings.TrimSpace(s))
+    return nil
+}
 
 type Enum interface {
 	IsValid() bool
@@ -162,10 +175,10 @@ type ReviewOverview struct {
 
 type ReviewDetail struct {
 	ReviewOverview
-	Content              string          `json:"content" binding:"required"`
-	ClassroomEnvironment string          `json:"classroom_environment" binding:"required"`
-	ExaminationFormat    string          `json:"examination_format" binding:"required"`
-	ExerciseFormat       string          `json:"exercise_format" binding:"required"`
+	Content              Trim         `json:"content" binding:"required"`
+	ClassroomEnvironment Trim          `json:"classroom_environment" binding:"required"` 
+	ExaminationFormat    Trim           `json:"examination_format" binding:"required"`
+	ExerciseFormat       Trim           `json:"exercise_format" binding:"required"`
 	GradingMethod        []GradingMethod `json:"grading_method" binding:"required,enum_slice" gorm:"serializer:json"`
 	Semester             Semester        `json:"semester" binding:"required,enum"`
 	Year                 int             `json:"year" binding:"required"`
