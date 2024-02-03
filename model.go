@@ -1,10 +1,23 @@
 package main
 
 import (
+	"encoding/json"
 	"reflect"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
+
+type TrimString string
+
+func (t *TrimString) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*t = TrimString(strings.TrimSpace(s))
+	return nil
+}
 
 type Enum interface {
 	IsValid() bool
@@ -122,14 +135,6 @@ func (s Semester) IsValid() bool {
 	return s == First || s == Second || s == Summer
 }
 
-type CourseTime struct {
-	StartHour   int   `json:"start_hour"`
-	StartMinute int   `json:"start_minute"`
-	EndHour     int   `json:"end_hour"`
-	EndMinute   int   `json:"end_minute"`
-	Days        []Day `json:"days" gorm:"serializer:json"`
-}
-
 type CourseOverview struct {
 	ID           string     `json:"id" gorm:"type:varchar(10);primaryKey"`
 	NameTH       string     `json:"name_th"`
@@ -140,13 +145,10 @@ type CourseOverview struct {
 
 type CourseDetail struct {
 	CourseOverview
-	Description string       `json:"description"`
-	Lecturers   []string     `json:"lecturers" gorm:"serializer:json"`
-	Location    string       `json:"location"`
-	Schedule    []CourseTime   `json:"schedule" gorm:"serializer:json"`
-	Rooms       []string     `json:"rooms" gorm:"serializer:json"`
-	Credit      CourseCredit `json:"credit" gorm:"serializer:json"`
-	Reviews []ReviewDetail `gorm:"foreignkey:CourseID"`
+	Description string         `json:"description"`
+	Lecturers   []string       `json:"lecturers" gorm:"serializer:json"`
+	Credit      CourseCredit   `json:"credit" gorm:"serializer:json"`
+	Reviews     []ReviewDetail `gorm:"foreignkey:CourseID"`
 }
 
 type CourseCredit struct {
@@ -155,19 +157,19 @@ type CourseCredit struct {
 }
 
 type ReviewOverview struct {
-	ID uint64 `json:"id" gorm:"primary_key"`
-	Rating int   `json:"rating" binding:"required"`
-	Grade  Grade `json:"grade" binding:"required,enum"`
+	ID     uint64 `json:"id" gorm:"primary_key"`
+	Rating int    `json:"rating" binding:"required"`
+	Grade  Grade  `json:"grade" binding:"required,enum"`
 }
 
 type ReviewDetail struct {
 	ReviewOverview
-	Content              string          `json:"content" binding:"required"`
-	ClassroomEnvironment string          `json:"classroom_environment" binding:"required"`
-	ExaminationFormat    string          `json:"examination_format" binding:"required"`
-	ExerciseFormat       string          `json:"exercise_format" binding:"required"`
+	Content              TrimString      `json:"content" binding:"required"`
+	ClassroomEnvironment TrimString      `json:"classroom_environment" binding:"required"`
+	ExaminationFormat    TrimString      `json:"examination_format" binding:"required"`
+	ExerciseFormat       TrimString      `json:"exercise_format" binding:"required"`
 	GradingMethod        []GradingMethod `json:"grading_method" binding:"required,enum_slice" gorm:"serializer:json"`
 	Semester             Semester        `json:"semester" binding:"required,enum"`
 	Year                 int             `json:"year" binding:"required"`
-	CourseID string
+	CourseID             string
 }

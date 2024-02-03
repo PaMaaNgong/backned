@@ -1,14 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"strconv"
-
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"net/http"
+	"strconv"
 )
+
+func newCors() gin.HandlerFunc {
+	config := cors.DefaultConfig()
+	config.AllowMethods = []string{"GET", "POST"}
+	config.AllowOriginFunc = func(origin string) bool { return true }
+	return cors.New(config)
+}
 
 func NewRouter(repo Repository) *gin.Engine {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -16,6 +22,7 @@ func NewRouter(repo Repository) *gin.Engine {
 	}
 
 	r := gin.Default()
+	r.Use(newCors())
 
 	r.GET("/v1/courses", func(c *gin.Context) {
 		query := c.Query("query")
@@ -42,11 +49,21 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, course)
 	})
 
-	r.POST("/v1/course/:id", func(c *gin.Context){
+	r.GET("/v1/course/:id/grades", func(c *gin.Context) {
+		id := c.Param("id")
+		grades, err := repo.GetCourseGrades(id)
+		if err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+		c.JSON(http.StatusOK, grades)
+	})
+
+	r.POST("/v1/course/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		var course CourseDetail
 		err := c.BindJSON(&course)
-		if err != nil{
+		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return
 		}
@@ -74,7 +91,6 @@ func NewRouter(repo Repository) *gin.Engine {
 		var review ReviewDetail
 		err := c.BindJSON(&review)
 		if err != nil {
-			fmt.Println(err)
 			c.Status(http.StatusBadRequest)
 			return
 		}
