@@ -15,3 +15,9 @@ type ErrNotEnum struct {
 func (e ErrNotEnum) Error() string {
 	return "value is not enum"
 }
+
+type ErrInvalidAccessToken struct{}
+
+func (e ErrInvalidAccessToken) Error() string {
+	return "invalid access token"
+}

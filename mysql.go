@@ -26,11 +26,9 @@ func NewMySQLRepository(host string, username string, password string, port stri
 	}
 }
 
-func (s MySQLRepository) GetCourses(query string, limit int, offset int) ([]CourseOverview, error) {
+func (s MySQLRepository) GetCourses(query string) ([]CourseOverview, error) {
 	coursesDetail := make([]CourseDetail, 0)
-	s.db.Limit(limit).
-		Offset(offset).
-		Where("id <> ?", query).
+	s.db.Where("id <> ?", query).
 		Find(&coursesDetail)
 	coursesOverview := make([]CourseOverview, 0)
 	for _, courseDetail := range coursesDetail {
@@ -68,15 +66,13 @@ func (s MySQLRepository) GetCourseGrades(id string) ([]Grade, error) {
 	return grades, nil
 }
 
-func (s MySQLRepository) GetReviewsOverview(courseId string, limit int, offset int) ([]ReviewOverview, error) {
+func (s MySQLRepository) GetReviewsOverview(courseId string) ([]ReviewOverview, error) {
 	if s.noCourse(courseId) {
 		return []ReviewOverview{}, ErrCourseNotFound{}
 	}
 
 	reviewsDetail := make([]ReviewDetail, 0)
-	s.db.Limit(limit).
-		Offset(offset).
-		Where("course_id = ?", courseId).
+	s.db.Where("course_id = ?", courseId).
 		Find(&reviewsDetail)
 	reviewsOverview := make([]ReviewOverview, 0)
 	for _, reviewDetail := range reviewsDetail {
@@ -85,12 +81,12 @@ func (s MySQLRepository) GetReviewsOverview(courseId string, limit int, offset i
 	return reviewsOverview, nil
 }
 
-func (s MySQLRepository) GetReviewsDetail(courseId string, limit int, offset int) ([]ReviewDetail, error) {
+func (s MySQLRepository) GetReviewsDetail(courseId string) ([]ReviewDetail, error) {
 	if s.noCourse(courseId) {
 		return []ReviewDetail{}, ErrCourseNotFound{}
 	}
 	reviewsDetail := make([]ReviewDetail, 0)
-	result := s.db.Limit(limit).Offset(offset).Where("course_id = ?", courseId).Find(&reviewsDetail)
+	result := s.db.Where("course_id = ?", courseId).Find(&reviewsDetail)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return []ReviewDetail{}, ErrCourseNotFound{}
 	}
@@ -136,16 +132,8 @@ func (s MySQLRepository) noCourse(courseId string) bool {
 }
 
 func (s MySQLRepository) updateCourse(courseId string) {
-	// var course CourseDetail
-	// s.db.Model(&ReviewDetail{}).Where("course_id = ?", courseId).Find(&course)
-	// fmt.Println(course.Reviews)
 	var new_rating float64
 	var total_reviews uint64
-	// for _, review := range course.Reviews {
-	// 	new_rating += float64(review.Rating)
-	// 	total_reviews += 1
-	// }
-	// new_rating /= float64(total_reviews)
 	reviewsDetail := make([]ReviewDetail, 0)
 	s.db.Where("course_id = ?", courseId).Find(&reviewsDetail)
 	for _, review := range reviewsDetail {

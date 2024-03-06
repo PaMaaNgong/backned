@@ -1,13 +1,13 @@
 package main
 
 import (
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 )
 
 func newCors() gin.HandlerFunc {
@@ -17,7 +17,7 @@ func newCors() gin.HandlerFunc {
 	return cors.New(config)
 }
 
-func NewRouter(repo Repository) *gin.Engine {
+func NewRouter(repo Repository, auth Auth) *gin.Engine {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		RegisterEnumValidator(v)
 	}
@@ -25,14 +25,9 @@ func NewRouter(repo Repository) *gin.Engine {
 	r := gin.Default()
 	r.Use(newCors())
 
-	r.GET("/v1/courses", func(c *gin.Context) {
+	r.GET("/v2/courses", func(c *gin.Context) {
 		query := c.Query("query")
-		limit, offset, err := getLimitAndOffset(c, 10, 0)
-		if err != nil {
-			c.Status(http.StatusBadRequest)
-			return
-		}
-		courses, err := repo.GetCourses(query, limit, offset)
+		courses, err := repo.GetCourses(query)
 		if err != nil {
 			c.Status(http.StatusNotFound)
 			return
@@ -40,7 +35,7 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, courses)
 	})
 
-	r.GET("/v1/course/:id", func(c *gin.Context) {
+	r.GET("/v2/course/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		course, err := repo.GetCourseDetail(id)
 		if err != nil {
@@ -50,7 +45,7 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, course)
 	})
 
-	r.GET("/v1/course/:id/grades", func(c *gin.Context) {
+	r.GET("/v2/course/:id/grades", func(c *gin.Context) {
 		id := c.Param("id")
 		grades, err := repo.GetCourseGrades(id)
 		if err != nil {
@@ -60,7 +55,11 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, grades)
 	})
 
-	r.POST("/v1/course/:id", func(c *gin.Context) {
+	r.POST("/v2/course/:id", func(c *gin.Context) {
+		if userId, err := auth.Verify(c.GetHeader("accessToken")); userId != 1 || err != nil {
+			c.Status(http.StatusForbidden)
+			return
+		}
 		id := c.Param("id")
 		var course CourseDetail
 		err := c.BindJSON(&course)
@@ -72,14 +71,9 @@ func NewRouter(repo Repository) *gin.Engine {
 		repo.AddCourse(course)
 	})
 
-	r.GET("/v1/course/:id/reviews", func(c *gin.Context) {
+	r.GET("/v2/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
-		limit, offset, err := getLimitAndOffset(c, 10, 0)
-		if err != nil {
-			c.Status(http.StatusBadRequest)
-			return
-		}
-		reviews, err := repo.GetReviewsOverview(id, limit, offset)
+		reviews, err := repo.GetReviewsOverview(id)
 		if err != nil {
 			c.Status(http.StatusNotFound)
 			return
@@ -87,10 +81,15 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, reviews)
 	})
 
-	r.POST("/v1/course/:id/reviews", func(c *gin.Context) {
+	r.POST("/v2/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
+		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		if err != nil {
+			c.Status(http.StatusForbidden)
+			return
+		}
 		var review ReviewDetail
-		err := c.BindJSON(&review)
+		err = c.BindJSON(&review)
 		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return
@@ -99,7 +98,7 @@ func NewRouter(repo Repository) *gin.Engine {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-		err = repo.CreateReview(1, id, review)
+		err = repo.CreateReview(userId, id, review)
 		if err != nil {
 			c.Status(http.StatusNotFound)
 			return
@@ -107,14 +106,53 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.Status(http.StatusCreated)
 	})
 
-	r.GET("/v1/course/:id/reviews/detail", func(c *gin.Context) {
-		id := c.Param("id")
-		limit, offset, err := getLimitAndOffset(c, 10, 0)
+	r.PATCH("/v2/course/:course_id/reviews/:review_id", func(c *gin.Context) {
+		courseId := c.Param("course_id")
+		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		if err != nil {
+			c.Status(http.StatusForbidden)
+			return
+		}
+		var review ReviewDetail
+		err = c.BindJSON(&review)
 		if err != nil {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-		reviews, err := repo.GetReviewsDetail(id, limit, offset)
+		if review.Rating < 1 || review.Rating > 5 {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		if reviewId, err := strconv.ParseUint(c.Param("review_id"), 10, 64); err != nil {
+			err = repo.EditReview(userId, courseId, reviewId, review)
+			if err != nil {
+				c.Status(http.StatusNotFound)
+				return
+			}
+		}
+		c.Status(http.StatusOK)
+	})
+
+	r.DELETE("/v2/course/:course_id/reviews/:review_id", func(c *gin.Context) {
+		courseId := c.Param("course_id")
+		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		if err != nil {
+			c.Status(http.StatusForbidden)
+			return
+		}
+		if reviewId, err := strconv.ParseUint(c.Param("review_id"), 10, 64); err != nil {
+			err = repo.DeleteReview(userId, courseId, reviewId)
+			if err != nil {
+				c.Status(http.StatusNotFound)
+				return
+			}
+		}
+		c.Status(http.StatusOK)
+	})
+
+	r.GET("/v2/course/:id/reviews/detail", func(c *gin.Context) {
+		id := c.Param("id")
+		reviews, err := repo.GetReviewsDetail(id)
 		if err != nil {
 			c.Status(http.StatusNotFound)
 			return
@@ -123,20 +161,4 @@ func NewRouter(repo Repository) *gin.Engine {
 	})
 
 	return r
-}
-
-func getLimitAndOffset(c *gin.Context, defaultLimit int, defaultOffset int) (int, int, error) {
-	limit, err := strconv.Atoi(c.Query("limit"))
-	if c.Query("limit") != "" && err != nil {
-		return 0, 0, err
-	} else if c.Query("limit") == "" {
-		limit = defaultLimit
-	}
-	offset, err := strconv.Atoi(c.Query("offset"))
-	if c.Query("offset") != "" && err != nil {
-		return 0, 0, err
-	} else if c.Query("offset") == "" {
-		offset = defaultOffset
-	}
-	return limit, offset, nil
 }
