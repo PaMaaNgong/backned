@@ -25,7 +25,7 @@ func NewRouter(repo Repository) *gin.Engine {
 	r := gin.Default()
 	r.Use(newCors())
 
-	r.GET("/v1/courses", func(c *gin.Context) {
+	r.GET("/v2/courses", func(c *gin.Context) {
 		query := c.Query("query")
 		limit, offset, err := getLimitAndOffset(c, 10, 0)
 		if err != nil {
@@ -40,7 +40,7 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, courses)
 	})
 
-	r.GET("/v1/course/:id", func(c *gin.Context) {
+	r.GET("/v2/course/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		course, err := repo.GetCourseDetail(id)
 		if err != nil {
@@ -50,7 +50,7 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, course)
 	})
 
-	r.GET("/v1/course/:id/grades", func(c *gin.Context) {
+	r.GET("/v2/course/:id/grades", func(c *gin.Context) {
 		id := c.Param("id")
 		grades, err := repo.GetCourseGrades(id)
 		if err != nil {
@@ -60,7 +60,7 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, grades)
 	})
 
-	r.POST("/v1/course/:id", func(c *gin.Context) {
+	r.POST("/v2/course/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		var course CourseDetail
 		err := c.BindJSON(&course)
@@ -72,7 +72,7 @@ func NewRouter(repo Repository) *gin.Engine {
 		repo.AddCourse(course)
 	})
 
-	r.GET("/v1/course/:id/reviews", func(c *gin.Context) {
+	r.GET("/v2/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
 		limit, offset, err := getLimitAndOffset(c, 10, 0)
 		if err != nil {
@@ -87,7 +87,7 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.JSON(http.StatusOK, reviews)
 	})
 
-	r.POST("/v1/course/:id/reviews", func(c *gin.Context) {
+	r.POST("/v2/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
 		var review ReviewDetail
 		err := c.BindJSON(&review)
@@ -107,7 +107,7 @@ func NewRouter(repo Repository) *gin.Engine {
 		c.Status(http.StatusCreated)
 	})
 
-	r.GET("/v1/course/:id/reviews/detail", func(c *gin.Context) {
+	r.GET("/v2/course/:id/reviews/detail", func(c *gin.Context) {
 		id := c.Param("id")
 		limit, offset, err := getLimitAndOffset(c, 10, 0)
 		if err != nil {
@@ -120,6 +120,38 @@ func NewRouter(repo Repository) *gin.Engine {
 			return
 		}
 		c.JSON(http.StatusOK, reviews)
+	})
+
+	r.PATCH("/v2/course/:id/reviews/:reviewid", func(c *gin.Context) {
+		id := c.Param("id")
+		reviewid_str := c.Param("reviewid")
+		var review ReviewDetail
+		err := c.BindJSON(&review)
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		reviewid, _ := strconv.ParseUint(reviewid_str, 10, 64)
+		err_edit := repo.EditReview(1, id, reviewid, review)
+		if err_edit != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		c.Status(http.StatusOK)
+	})
+
+	r.DELETE("/v2/course/:id/reviews/:reviewid", func(c *gin.Context) {
+		id := c.Param("id")
+		reviewid_str := c.Param("reviewid")
+		reviewid, _ := strconv.ParseUint(reviewid_str, 10, 64)
+		_, course_err := repo.GetCourseGrades(id)
+		if course_err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+		//ยังไม่ได้ทำถ้า review id ไม่มี
+		repo.DeleteReview(1, id, reviewid)
+		c.Status(http.StatusOK)
 	})
 
 	return r
