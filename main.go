@@ -14,6 +14,7 @@ func main() {
 		os.Getenv("MYSQL_PORT"),
 		os.Getenv("MYSQL_DATABASE"),
 	)
-	r := NewRouter(s)
+	a := NewStubAuth()
+	r := NewRouter(s, a)
 	_ = r.Run()
 }
