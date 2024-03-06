@@ -135,12 +135,57 @@ func (s Semester) IsValid() bool {
 	return s == First || s == Second || s == Summer
 }
 
+type Difficult string
+
+const (
+	Easy   Difficult = "easy"
+	Normal           = "normal"
+	Hard             = "hard"
+)
+
+func (d Difficult) IsValid() bool {
+	return d == Easy || d == Normal || d == Hard
+}
+
+type ExerciseFormat string
+
+const (
+	Individual ExerciseFormat = "individual"
+	Group                     = "group"
+)
+
+func (e ExerciseFormat) IsValid() bool {
+	return e == Individual || e == Group
+}
+
+type ExaminationFormat string
+
+const (
+	Objective  ExaminationFormat = "objective"
+	Subjective                   = "subjective"
+)
+
+func (e ExaminationFormat) IsValid() bool {
+	return e == Objective || e == Subjective
+}
+
+type ExaminationInfo struct {
+	Format     []ExaminationFormat `json:"format" binding:"enum_slice"`
+	Difficulty Difficult           `json:"difficulty" binding:"enum"`
+}
+
+type ExerciseInfo struct {
+	Format     []ExerciseFormat `json:"format" binding:"enum_slice"`
+	Difficulty Difficult        `json:"difficulty" binding:"enum"`
+}
+
 type CourseOverview struct {
 	ID           string     `json:"id" gorm:"type:varchar(10);primaryKey"`
 	NameTH       string     `json:"name_th"`
 	NameEN       string     `json:"name_en"`
 	Type         CourseType `json:"type"`
 	TotalReviews int        `json:"total_reviews"`
+	Rating       float64    `json:"rating"`
 }
 
 type CourseDetail struct {
@@ -157,19 +202,26 @@ type CourseCredit struct {
 }
 
 type ReviewOverview struct {
-	ID     uint64 `json:"id" gorm:"primary_key"`
-	Rating int    `json:"rating" binding:"required"`
-	Grade  Grade  `json:"grade" binding:"required,enum"`
+	ID      uint64     `json:"id" gorm:"primary_key"`
+	Rating  int        `json:"rating" binding:"required"`
+	Grade   Grade      `json:"grade" binding:"required,enum"`
+	Content TrimString `json:"content" binding:"required"`
 }
 
 type ReviewDetail struct {
 	ReviewOverview
-	Content              TrimString      `json:"content" binding:"required"`
-	ClassroomEnvironment TrimString      `json:"classroom_environment" binding:"required"`
-	ExaminationFormat    TrimString      `json:"examination_format" binding:"required"`
-	ExerciseFormat       TrimString      `json:"exercise_format" binding:"required"`
-	GradingMethod        []GradingMethod `json:"grading_method" binding:"required,enum_slice" gorm:"serializer:json"`
-	Semester             Semester        `json:"semester" binding:"required,enum"`
-	Year                 int             `json:"year" binding:"required"`
-	CourseID             string
+	ClassroomEnvironment TrimString `json:"classroom_environment" binding:"required"`
+	// Examination          ExaminationInfo `json:"examination_format" binding:"required" gorm:"serializer:json"`
+	// Exercise             ExerciseInfo    `json:"exercise_format" binding:"required" gorm:"serializer:json"`
+	GradingMethod []GradingMethod `json:"grading_method" binding:"required,enum_slice" gorm:"serializer:json"`
+	Semester      Semester        `json:"semester" binding:"required,enum"`
+	Year          int             `json:"year" binding:"required"`
+	Other         string          `json:"other"`
+	OwnerID       uint64          `json:"owner"`
+	CourseID      string
+}
+
+type User struct {
+	ID      uint64         `gorm:"primaryKey"`
+	Reviews []ReviewDetail `gorm:"foreignKey:OwnerID"`
 }

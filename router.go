@@ -1,12 +1,13 @@
 package main
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	"net/http"
-	"strconv"
 )
 
 func newCors() gin.HandlerFunc {
@@ -98,7 +99,7 @@ func NewRouter(repo Repository) *gin.Engine {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-		err = repo.CreateReview(id, review)
+		err = repo.CreateReview(1, id, review)
 		if err != nil {
 			c.Status(http.StatusNotFound)
 			return
