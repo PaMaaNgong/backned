@@ -17,7 +17,7 @@ func NewMySQLRepository(host string, username string, password string, port stri
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, host, port, dbName)
 	driver := mysql.Open(dsn)
 	db, _ := gorm.Open(driver, &gorm.Config{})
-	err := db.AutoMigrate(&CourseDetail{}, &ReviewDetail{}, &User{})
+	err := db.AutoMigrate(&User{}, &CourseDetail{}, &ReviewDetail{})
 	if err != nil {
 		panic(err)
 	}
