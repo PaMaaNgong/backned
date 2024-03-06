@@ -167,7 +167,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 	})
 
 	r.GET("/v1/auth", func(c *gin.Context) {
-		c.Header("Location", "/callback")
+		c.Header("Location", "/v1/callback")
 		c.Status(http.StatusMovedPermanently)
 	})
 
