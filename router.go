@@ -123,12 +123,15 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-		if reviewId, err := strconv.ParseUint(c.Param("review_id"), 10, 64); err != nil {
+		if reviewId, err := strconv.ParseUint(c.Param("review_id"), 10, 64); err == nil {
 			err = repo.EditReview(userId, courseId, reviewId, review)
 			if err != nil {
 				c.Status(http.StatusNotFound)
 				return
 			}
+		} else {
+			c.Status(http.StatusBadRequest)
+			return
 		}
 		c.Status(http.StatusOK)
 	})
@@ -140,12 +143,15 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 			c.Status(http.StatusForbidden)
 			return
 		}
-		if reviewId, err := strconv.ParseUint(c.Param("review_id"), 10, 64); err != nil {
+		if reviewId, err := strconv.ParseUint(c.Param("review_id"), 10, 64); err == nil {
 			err = repo.DeleteReview(userId, courseId, reviewId)
 			if err != nil {
 				c.Status(http.StatusNotFound)
 				return
 			}
+		} else {
+			c.Status(http.StatusNotFound)
+			return
 		}
 		c.Status(http.StatusOK)
 	})
@@ -158,6 +164,41 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 			return
 		}
 		c.JSON(http.StatusOK, reviews)
+	})
+
+	r.GET("/v2/auth", func(c *gin.Context) {
+		c.Header("Location", "/callback")
+		c.Status(http.StatusMovedPermanently)
+	})
+
+	r.GET("/v2/callback", func(c *gin.Context) {
+		c.Header("Location", "https://rococo-blini-2e875c.netlify.app/?accessToken=token-1")
+		c.Status(http.StatusMovedPermanently)
+	})
+
+	r.GET("/v2/profile/reviews/courses", func(c *gin.Context) {
+		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		if err != nil {
+			c.Status(http.StatusForbidden)
+			return
+		}
+		courses, _ := repo.GetCoursesByUser(userId)
+		c.JSON(http.StatusOK, courses)
+	})
+
+	r.GET("/v2/profile/reviews/:course_id", func(c *gin.Context) {
+		courseId := c.Param("course_id")
+		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		if err != nil {
+			c.Status(http.StatusForbidden)
+			return
+		}
+		review, err := repo.GetReviewByUser(userId, courseId)
+		if err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+		c.JSON(http.StatusOK, review)
 	})
 
 	return r

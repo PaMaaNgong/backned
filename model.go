@@ -170,12 +170,12 @@ func (e ExaminationFormat) IsValid() bool {
 }
 
 type ExaminationInfo struct {
-	Format     []ExaminationFormat `json:"format" binding:"enum_slice"`
+	Format     []ExaminationFormat `json:"format" binding:"enum_slice" gorm:"serializer:json"`
 	Difficulty Difficult           `json:"difficulty" binding:"enum"`
 }
 
 type ExerciseInfo struct {
-	Format     []ExerciseFormat `json:"format" binding:"enum_slice"`
+	Format     []ExerciseFormat `json:"format" binding:"enum_slice" gorm:"serializer:json"`
 	Difficulty Difficult        `json:"difficulty" binding:"enum"`
 }
 
@@ -210,15 +210,15 @@ type ReviewOverview struct {
 
 type ReviewDetail struct {
 	ReviewOverview
-	ClassroomEnvironment TrimString `json:"classroom_environment" binding:"required"`
-	// Examination          ExaminationInfo `json:"examination_format" binding:"required" gorm:"serializer:json"`
-	// Exercise             ExerciseInfo    `json:"exercise_format" binding:"required" gorm:"serializer:json"`
-	GradingMethod []GradingMethod `json:"grading_method" binding:"required,enum_slice" gorm:"serializer:json"`
-	Semester      Semester        `json:"semester" binding:"required,enum"`
-	Year          int             `json:"year" binding:"required"`
-	Other         string          `json:"other"`
-	OwnerID       uint64          `json:"owner"`
-	CourseID      string
+	ClassroomEnvironment TrimString      `json:"classroom_environment" binding:"required"`
+	Examination          ExaminationInfo `json:"examination_format" binding:"required" gorm:"serializer:json"`
+	Exercise             ExerciseInfo    `json:"exercise_format" binding:"required" gorm:"serializer:json"`
+	GradingMethod        []GradingMethod `json:"grading_method" binding:"required,enum_slice" gorm:"serializer:json"`
+	Semester             Semester        `json:"semester" binding:"required,enum"`
+	Year                 int             `json:"year" binding:"required"`
+	Other                TrimString      `json:"other"`
+	OwnerID              uint64          `json:"owner"`
+	CourseID             string
 }
 
 type User struct {

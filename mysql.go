@@ -99,36 +99,60 @@ func (s MySQLRepository) CreateReview(userId uint64, courseId string, review Rev
 	}
 	review.CourseID = courseId
 	review.OwnerID = userId
-	fmt.Println(userId)
 	result := s.db.Create(&review)
 	s.updateCourse(courseId)
 	return result.Error
 }
 
 func (s MySQLRepository) EditReview(userId uint64, courseId string, reviewId uint64, review ReviewDetail) error {
-	if s.noCourse(courseId) {
+	if s.noReview(courseId, reviewId) {
 		return ErrCourseNotFound{}
 	}
 	review.ID = reviewId
 	review.CourseID = courseId
 	review.OwnerID = userId
-	s.db.Model(&ReviewDetail{}).Where("id = ? AND course_id = ? AND owner_id = ?", reviewId, courseId, userId).Updates(review)
+	s.db.Where("id = ? AND course_id = ? AND owner_id = ?", reviewId, courseId, userId).Updates(review)
 	s.updateCourse(courseId)
 	return nil
 }
 
 func (s MySQLRepository) DeleteReview(userId uint64, courseId string, reviewId uint64) error {
-	if s.noCourse(courseId) {
+	if s.noReview(courseId, reviewId) {
 		return ErrCourseNotFound{}
 	}
-	s.db.Model(&ReviewDetail{}).Where("id = ? AND course_id = ? AND owner_id = ?", reviewId, courseId, userId).Delete(&ReviewDetail{})
+	s.db.Where("id = ? AND course_id = ? AND owner_id = ?", reviewId, courseId, userId).Delete(&ReviewDetail{})
 	s.updateCourse(courseId)
 	return nil
+}
+
+func (s MySQLRepository) GetCoursesByUser(userId uint64) ([]CourseOverview, error) {
+	reviews := make([]ReviewDetail, 0)
+	courses := make([]CourseOverview, 0)
+	s.db.Where("owner_id = ?", userId).Find(&reviews)
+	for _, review := range reviews {
+		course := CourseDetail{}
+		s.db.Where("id = ?", review.CourseID).First(&course)
+		courses = append(courses, course.CourseOverview)
+	}
+	return courses, nil
+}
+
+func (s MySQLRepository) GetReviewByUser(userId uint64, courseId string) (ReviewDetail, error) {
+	var review ReviewDetail
+	if s.db.Where("course_id = ? AND owner_id = ?", courseId, userId).First(&review).Error == nil {
+		return review, nil
+	}
+	return ReviewDetail{}, ErrCourseNotFound{}
 }
 
 func (s MySQLRepository) noCourse(courseId string) bool {
 	var course CourseDetail
 	return errors.Is(s.db.Where("id = ?", courseId).First(&course).Error, gorm.ErrRecordNotFound)
+}
+
+func (s MySQLRepository) noReview(courseId string, reviewId uint64) bool {
+	var review ReviewDetail
+	return errors.Is(s.db.Where("id = ? AND course_id = ?", reviewId, courseId).First(&review).Error, gorm.ErrRecordNotFound)
 }
 
 func (s MySQLRepository) updateCourse(courseId string) {
@@ -141,6 +165,9 @@ func (s MySQLRepository) updateCourse(courseId string) {
 		total_reviews += 1
 	}
 	new_rating /= float64(total_reviews)
+	if math.IsNaN(new_rating) {
+		new_rating = 0
+	}
 	new_rating = (math.Round(new_rating * 100)) / 100
 	s.db.Model(&CourseDetail{}).Where("id = ?", courseId).Update("rating", new_rating).Update("total_reviews", total_reviews)
 }
