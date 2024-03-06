@@ -25,7 +25,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 	r := gin.Default()
 	r.Use(newCors())
 
-	r.GET("/v2/courses", func(c *gin.Context) {
+	r.GET("/v1/courses", func(c *gin.Context) {
 		query := c.Query("query")
 		courses, err := repo.GetCourses(query)
 		if err != nil {
@@ -35,7 +35,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.JSON(http.StatusOK, courses)
 	})
 
-	r.GET("/v2/course/:id", func(c *gin.Context) {
+	r.GET("/v1/course/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		course, err := repo.GetCourseDetail(id)
 		if err != nil {
@@ -45,7 +45,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.JSON(http.StatusOK, course)
 	})
 
-	r.GET("/v2/course/:id/grades", func(c *gin.Context) {
+	r.GET("/v1/course/:id/grades", func(c *gin.Context) {
 		id := c.Param("id")
 		grades, err := repo.GetCourseGrades(id)
 		if err != nil {
@@ -55,7 +55,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.JSON(http.StatusOK, grades)
 	})
 
-	r.POST("/v2/course/:id", func(c *gin.Context) {
+	r.POST("/v1/course/:id", func(c *gin.Context) {
 		if userId, err := auth.Verify(c.GetHeader("accessToken")); userId != 1 || err != nil {
 			c.Status(http.StatusForbidden)
 			return
@@ -71,7 +71,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		repo.AddCourse(course)
 	})
 
-	r.GET("/v2/course/:id/reviews", func(c *gin.Context) {
+	r.GET("/v1/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
 		reviews, err := repo.GetReviewsOverview(id)
 		if err != nil {
@@ -81,7 +81,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.JSON(http.StatusOK, reviews)
 	})
 
-	r.POST("/v2/course/:id/reviews", func(c *gin.Context) {
+	r.POST("/v1/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
 		userId, err := auth.Verify(c.GetHeader("accessToken"))
 		if err != nil {
@@ -106,7 +106,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.Status(http.StatusCreated)
 	})
 
-	r.PATCH("/v2/course/:course_id/reviews/:review_id", func(c *gin.Context) {
+	r.PATCH("/v1/course/:course_id/reviews/:review_id", func(c *gin.Context) {
 		courseId := c.Param("course_id")
 		userId, err := auth.Verify(c.GetHeader("accessToken"))
 		if err != nil {
@@ -136,7 +136,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.Status(http.StatusOK)
 	})
 
-	r.DELETE("/v2/course/:course_id/reviews/:review_id", func(c *gin.Context) {
+	r.DELETE("/v1/course/:course_id/reviews/:review_id", func(c *gin.Context) {
 		courseId := c.Param("course_id")
 		userId, err := auth.Verify(c.GetHeader("accessToken"))
 		if err != nil {
@@ -156,7 +156,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.Status(http.StatusOK)
 	})
 
-	r.GET("/v2/course/:id/reviews/detail", func(c *gin.Context) {
+	r.GET("/v1/course/:id/reviews/detail", func(c *gin.Context) {
 		id := c.Param("id")
 		reviews, err := repo.GetReviewsDetail(id)
 		if err != nil {
@@ -166,17 +166,17 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.JSON(http.StatusOK, reviews)
 	})
 
-	r.GET("/v2/auth", func(c *gin.Context) {
+	r.GET("/v1/auth", func(c *gin.Context) {
 		c.Header("Location", "/callback")
 		c.Status(http.StatusMovedPermanently)
 	})
 
-	r.GET("/v2/callback", func(c *gin.Context) {
+	r.GET("/v1/callback", func(c *gin.Context) {
 		c.Header("Location", "https://rococo-blini-2e875c.netlify.app/?accessToken=token-1")
 		c.Status(http.StatusMovedPermanently)
 	})
 
-	r.GET("/v2/profile/reviews/courses", func(c *gin.Context) {
+	r.GET("/v1/profile/reviews/courses", func(c *gin.Context) {
 		userId, err := auth.Verify(c.GetHeader("accessToken"))
 		if err != nil {
 			c.Status(http.StatusForbidden)
@@ -186,7 +186,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 		c.JSON(http.StatusOK, courses)
 	})
 
-	r.GET("/v2/profile/reviews/:course_id", func(c *gin.Context) {
+	r.GET("/v1/profile/reviews/:course_id", func(c *gin.Context) {
 		courseId := c.Param("course_id")
 		userId, err := auth.Verify(c.GetHeader("accessToken"))
 		if err != nil {
