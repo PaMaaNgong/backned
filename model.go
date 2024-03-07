@@ -193,7 +193,7 @@ type CourseDetail struct {
 	Description string         `json:"description"`
 	Lecturers   []string       `json:"lecturers" gorm:"serializer:json"`
 	Credit      CourseCredit   `json:"credit" gorm:"serializer:json"`
-	Reviews     []ReviewDetail `gorm:"foreignkey:CourseID"`
+	Reviews     []ReviewDetail `json:"-" gorm:"foreignkey:CourseID"`
 }
 
 type CourseCredit struct {
@@ -218,10 +218,10 @@ type ReviewDetail struct {
 	Year                 int             `json:"year" binding:"required"`
 	Other                TrimString      `json:"other"`
 	OwnerID              uint64          `json:"owner"`
-	CourseID             string
+	CourseID             string          `json:"-"`
 }
 
 type User struct {
 	ID      uint64         `gorm:"primaryKey"`
-	Reviews []ReviewDetail `gorm:"foreignKey:OwnerID"`
+	Reviews []ReviewDetail `json:"-" gorm:"foreignKey:OwnerID"`
 }
