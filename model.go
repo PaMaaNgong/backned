@@ -218,7 +218,7 @@ type ReviewDetail struct {
 	Year                 int             `json:"year" binding:"required"`
 	Other                TrimString      `json:"other"`
 	OwnerID              uint64          `json:"owner"`
-	CourseID             string          `json:"-"`
+	CourseID             string          `json:"course_id"`
 }
 
 type User struct {
