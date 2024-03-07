@@ -145,6 +145,16 @@ func (s MySQLRepository) GetReviewByUser(userId uint64, courseId string) (Review
 	return ReviewDetail{}, ErrCourseNotFound{}
 }
 
+func (s MySQLRepository) GetRating(courseId string) ([]int, error) {
+	var ratings []int
+	reviewsDetail := make([]ReviewDetail, 0)
+	s.db.Where("course_id = ?", courseId).Find(&reviewsDetail)
+	for _, review := range reviewsDetail {
+		ratings = append(ratings, review.Rating)
+	}
+	return ratings, nil
+}
+
 func (s MySQLRepository) noCourse(courseId string) bool {
 	var course CourseDetail
 	return errors.Is(s.db.Where("id = ?", courseId).First(&course).Error, gorm.ErrRecordNotFound)

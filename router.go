@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
+
+	"github.com/go-playground/validator/v10"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -199,6 +200,15 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 			return
 		}
 		c.JSON(http.StatusOK, review)
+	})
+
+	r.GET("v1/course/:courseid/ratings", func(c *gin.Context) {
+		courseId := c.Param("courseid")
+		ratings, err := repo.GetRating(courseId)
+		if err == nil {
+			c.Status(http.StatusBadRequest)
+		}
+		c.JSON(http.StatusOK, ratings)
 	})
 
 	return r
