@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
@@ -18,7 +19,7 @@ func newCors() gin.HandlerFunc {
 	return cors.New(config)
 }
 
-func NewRouter(repo Repository, auth Auth) *gin.Engine {
+func NewRouter(repo Repository, auth Auth, redirect string) *gin.Engine {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		RegisterEnumValidator(v)
 	}
@@ -57,7 +58,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 	})
 
 	r.POST("/v1/course/:id", func(c *gin.Context) {
-		if userId, err := auth.Verify(c.GetHeader("accessToken")); userId != 1 || err != nil {
+		if userId, err := auth.Verify(c.GetHeader("accesstoken")); userId != 1 || err != nil {
 			c.Status(http.StatusForbidden)
 			return
 		}
@@ -84,7 +85,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 
 	r.POST("/v1/course/:id/reviews", func(c *gin.Context) {
 		id := c.Param("id")
-		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		userId, err := auth.Verify(c.GetHeader("accesstoken"))
 		if err != nil {
 			c.Status(http.StatusForbidden)
 			return
@@ -100,7 +101,10 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 			return
 		}
 		err = repo.CreateReview(userId, id, review)
-		if err != nil {
+		if errors.Is(err, ErrAlreadyReview{}) {
+			c.Status(http.StatusForbidden)
+			return
+		} else if err != nil {
 			c.Status(http.StatusNotFound)
 			return
 		}
@@ -109,7 +113,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 
 	r.PATCH("/v1/course/:course_id/reviews/:review_id", func(c *gin.Context) {
 		courseId := c.Param("course_id")
-		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		userId, err := auth.Verify(c.GetHeader("accesstoken"))
 		if err != nil {
 			c.Status(http.StatusForbidden)
 			return
@@ -139,7 +143,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 
 	r.DELETE("/v1/course/:course_id/reviews/:review_id", func(c *gin.Context) {
 		courseId := c.Param("course_id")
-		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		userId, err := auth.Verify(c.GetHeader("accesstoken"))
 		if err != nil {
 			c.Status(http.StatusForbidden)
 			return
@@ -173,12 +177,12 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 	})
 
 	r.GET("/v1/callback", func(c *gin.Context) {
-		c.Header("Location", "https://rococo-blini-2e875c.netlify.app/?accessToken=token-1")
+		c.Header("Location", redirect)
 		c.Status(http.StatusMovedPermanently)
 	})
 
 	r.GET("/v1/profile/reviews/courses", func(c *gin.Context) {
-		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		userId, err := auth.Verify(c.GetHeader("accesstoken"))
 		if err != nil {
 			c.Status(http.StatusForbidden)
 			return
@@ -189,7 +193,7 @@ func NewRouter(repo Repository, auth Auth) *gin.Engine {
 
 	r.GET("/v1/profile/reviews/:course_id", func(c *gin.Context) {
 		courseId := c.Param("course_id")
-		userId, err := auth.Verify(c.GetHeader("accessToken"))
+		userId, err := auth.Verify(c.GetHeader("accesstoken"))
 		if err != nil {
 			c.Status(http.StatusForbidden)
 			return

@@ -15,6 +15,6 @@ func main() {
 		os.Getenv("MYSQL_DATABASE"),
 	)
 	a := NewStubAuth()
-	r := NewRouter(s, a)
+	r := NewRouter(s, a, os.Getenv("OAUTH_REDIRECT_URI"))
 	_ = r.Run()
 }
