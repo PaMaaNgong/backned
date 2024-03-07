@@ -191,6 +191,21 @@ func NewRouter(repo Repository, auth Auth, redirect string) *gin.Engine {
 		c.JSON(http.StatusOK, courses)
 	})
 
+	r.GET("/v1/profile/reviews/:course_id", func(c *gin.Context) {
+		courseId := c.Param("course_id")
+		userId, err := auth.Verify(c.GetHeader("accesstoken"))
+		if err != nil {
+			c.Status(http.StatusForbidden)
+			return
+		}
+		review, err := repo.GetReviewByUser(userId, courseId)
+		if err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+		c.JSON(http.StatusOK, review)
+	})
+
 	r.GET("/v1/profile/reviews", func(c *gin.Context) {
 		userId, err := auth.Verify(c.GetHeader("accesstoken"))
 		if err != nil {

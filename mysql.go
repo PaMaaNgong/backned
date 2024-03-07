@@ -141,6 +141,14 @@ func (s MySQLRepository) GetCoursesByUser(userId uint64) ([]CourseOverview, erro
 	return courses, nil
 }
 
+func (s MySQLRepository) GetReviewByUser(userId uint64, courseId string) (ReviewDetail, error) {
+	var review ReviewDetail
+	if s.db.Where("course_id = ? AND owner_id = ?", courseId, userId).First(&review).Error == nil {
+		return review, nil
+	}
+	return ReviewDetail{}, ErrCourseNotFound{}
+}
+
 func (s MySQLRepository) GetReviewsByUser(userId uint64) ([]ReviewDetail, error) {
 	var review []ReviewDetail
 	if s.db.Where("owner_id = ?", userId).First(&review).Error == nil {
