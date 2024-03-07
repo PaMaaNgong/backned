@@ -99,9 +99,12 @@ func (s MySQLRepository) CreateReview(userId uint64, courseId string, review Rev
 	}
 	review.CourseID = courseId
 	review.OwnerID = userId
-	result := s.db.Create(&review)
-	s.updateCourse(courseId)
-	return result.Error
+	if errors.Is(s.db.Where("course_id = ? AND owner = ?", courseId, userId).Find(&ReviewDetail{}).Error, gorm.ErrRecordNotFound) {
+		result := s.db.Create(&review)
+		s.updateCourse(courseId)
+		return result.Error
+	}
+	return ErrAlreadyReview{}
 }
 
 func (s MySQLRepository) EditReview(userId uint64, courseId string, reviewId uint64, review ReviewDetail) error {

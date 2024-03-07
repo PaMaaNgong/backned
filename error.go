@@ -21,3 +21,9 @@ type ErrInvalidAccessToken struct{}
 func (e ErrInvalidAccessToken) Error() string {
 	return "invalid access token"
 }
+
+type ErrAlreadyReview struct{}
+
+func (e ErrAlreadyReview) Error() string {
+	return "already reviewed"
+}
