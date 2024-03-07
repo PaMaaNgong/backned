@@ -13,7 +13,7 @@ import (
 
 func newCors() gin.HandlerFunc {
 	config := cors.DefaultConfig()
-	config.AllowMethods = []string{"GET", "POST"}
+	config.AllowMethods = []string{"GET", "POST", "DELETE", "PATCH"}
 	config.AllowOriginFunc = func(origin string) bool { return true }
 	config.AllowHeaders = []string{"content-type", "accesstoken"}
 	return cors.New(config)
