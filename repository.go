@@ -11,5 +11,5 @@ type Repository interface {
 	EditReview(userId uint64, courseId string, reviewId uint64, review ReviewDetail) error
 	DeleteReview(userId uint64, courseId string, reviewId uint64) error
 	GetCoursesByUser(userId uint64) ([]CourseOverview, error)
-	GetReviewByUser(userId uint64, courseId string) (ReviewDetail, error)
+	GetReviewsByUser(userId uint64) ([]ReviewDetail, error)
 }
